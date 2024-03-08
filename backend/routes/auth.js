@@ -2,11 +2,12 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const { body, validationResult } = require("express-validator");
+const generateToken = require("../config/generateToken");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const fetchUser = require("../middlewares/fetchUser");
 
-const JWT_SECRET_SIGNATURE = "$NoteSphere$by$Rahul$";
+const JWT_SECRET_SIGNATURE = "NoteSpherebyRahul";
 
 // Create a User using: POST "/api/auth/Register". No login required
 router.post(
@@ -32,6 +33,7 @@ router.post(
   async (req, res) => {
     // Storing the errors occurred in validation
     const errors = validationResult(req);
+    const success = false;
     if (!errors.isEmpty()) {
       // If errors occurred, send them in response msg
       return res.status(400).json({ errors: errors.array() });
@@ -40,7 +42,11 @@ router.post(
       let user = await User.findOne({ email: req.body.email });
       if (user) {
         // Handles duplicate values of email without using email as an index
-        return res.status(400).send("User already exists with this email");
+        // This error is shown in console if status code in 400
+        return res.status(200).json({
+          success: false,
+          error: "User already exists with this email",
+        });
       }
 
       // PASSWORD ENCRYPTION
@@ -56,6 +62,7 @@ router.post(
       })
         .then((user) => {
           // Send response once user is created
+          success = true;
           console.log("User inserted successfully");
           const data = {
             user: {
@@ -66,7 +73,13 @@ router.post(
           const token = jwt.sign(data, JWT_SECRET_SIGNATURE, {
             expiresIn: "1h",
           });
-          res.json({ token: token });
+          res.json({
+            success: success,
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            token: token,
+          });
         })
         .catch((error) => {
           // Handle any errors that occur during user creation and insertion into DB
@@ -132,7 +145,13 @@ router.post(
       const token = jwt.sign(data, JWT_SECRET_SIGNATURE, {
         expiresIn: "1h",
       });
-      res.json({ token: token });
+      res.json({ id: user.id, email: user.email, token: token });
+      // res.status(201).json({
+      //   success: true,
+      //   id: user.id,
+      //   email: user.email,
+      //   token: generateToken(data.user.id),
+      // });
     } catch (error) {
       // Handle any errors that occur during user creation and insertion into DB
       console.log("error");

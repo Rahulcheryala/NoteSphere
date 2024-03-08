@@ -19,7 +19,7 @@ router.get("/fetchNotes", fetchUser, async (req, res) => {
 
 // To add new notes using POST: "/api/notes/addNotes". Login required
 router.post(
-  "/addNotes",
+  "/addNote",
   fetchUser,
   [
     body("title")
@@ -132,7 +132,7 @@ router.delete("/deleteNote/:id", fetchUser, async (req, res) => {
     }
 
     return res.json({
-      success: "Note deleted successfully",
+      success: "Deleted successfully",
       deletedDocument: deletedDocument,
     });
   } catch (error) {

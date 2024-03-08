@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const JWT_SECRET_SIGNATURE = "$NoteSphere$by$Rahul$";
+const JWT_SECRET_SIGNATURE = "NoteSpherebyRahul";
 
 const fetchUser = (req, res, next) => {
   // get the userId from the jwt token and add id to the requested object
